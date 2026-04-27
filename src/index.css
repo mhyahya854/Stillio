@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 24% 5%;
+    --foreground: 215 20% 92%;
+
+    --card: 218 25% 10%;
+    --card-foreground: 215 20% 92%;
+
+    --popover: 218 25% 10%;
+    --popover-foreground: 215 20% 92%;
+
+    --primary: 196 75% 63%;
+    --primary-foreground: 220 40% 8%;
+
+    --secondary: 219 18% 19%;
+    --secondary-foreground: 215 20% 92%;
+
+    --muted: 218 17% 16%;
+    --muted-foreground: 215 13% 62%;
+
+    --accent: 146 23% 33%;
+    --accent-foreground: 210 20% 94%;
+
+    --destructive: 1 70% 52%;
+    --destructive-foreground: 215 20% 94%;
+
+    --border: 217 16% 28%;
+    --input: 217 16% 28%;
+    --ring: 196 75% 63%;
+
+    --panel: 220 24% 9%;
+    --panel-foreground: 215 20% 92%;
+    --surface: 220 20% 13%;
+    --surface-foreground: 215 20% 92%;
+    --success: 145 30% 44%;
+    --warning: 39 55% 54%;
+    --workspace-overlay: 220 42% 6%;
+    --workspace-glow: 196 75% 63%;
+    --workspace-bg: 216 24% 5%;
+    --workspace-panel: 220 24% 9%;
+    --workspace-panel-border: 217 16% 28%;
+    --workspace-text-primary: 215 20% 92%;
+    --workspace-text-muted: 215 13% 62%;
+    --workspace-accent: 196 75% 63%;
+    --workspace-danger: 1 70% 52%;
+    --workspace-success: 145 30% 44%;
+    --workspace-warning: 39 55% 54%;
+    --workspace-radius: 8px;
+    --workspace-shadow: 0 28px 80px -34px rgba(3, 7, 18, 0.95);
+
+    --radius: 0.7rem;
+
+    --sidebar-background: 220 24% 8%;
+    --sidebar-foreground: 215 20% 92%;
+    --sidebar-primary: 196 75% 63%;
+    --sidebar-primary-foreground: 220 40% 8%;
+    --sidebar-accent: 220 22% 14%;
+    --sidebar-accent-foreground: 215 20% 92%;
+    --sidebar-border: 217 16% 24%;
+    --sidebar-ring: 196 75% 63%;
+  }
+
+  .dark {
+    --background: 216 24% 5%;
+    --foreground: 215 20% 92%;
+    --card: 218 25% 10%;
+    --card-foreground: 215 20% 92%;
+    --popover: 218 25% 10%;
+    --popover-foreground: 215 20% 92%;
+    --primary: 196 75% 63%;
+    --primary-foreground: 220 40% 8%;
+    --secondary: 219 18% 19%;
+    --secondary-foreground: 215 20% 92%;
+    --muted: 218 17% 16%;
+    --muted-foreground: 215 13% 62%;
+    --accent: 146 23% 33%;
+    --accent-foreground: 210 20% 94%;
+    --destructive: 1 70% 52%;
+    --destructive-foreground: 215 20% 94%;
+    --border: 217 16% 28%;
+    --input: 217 16% 28%;
+    --ring: 196 75% 63%;
+    --panel: 220 24% 9%;
+    --panel-foreground: 215 20% 92%;
+    --surface: 220 20% 13%;
+    --surface-foreground: 215 20% 92%;
+    --success: 145 30% 44%;
+    --warning: 39 55% 54%;
+    --workspace-overlay: 220 42% 6%;
+    --workspace-glow: 196 75% 63%;
+    --workspace-bg: 216 24% 5%;
+    --workspace-panel: 220 24% 9%;
+    --workspace-panel-border: 217 16% 28%;
+    --workspace-text-primary: 215 20% 92%;
+    --workspace-text-muted: 215 13% 62%;
+    --workspace-accent: 196 75% 63%;
+    --workspace-danger: 1 70% 52%;
+    --workspace-success: 145 30% 44%;
+    --workspace-warning: 39 55% 54%;
+    --workspace-radius: 8px;
+    --workspace-shadow: 0 28px 80px -34px rgba(3, 7, 18, 0.95);
+    --sidebar-background: 220 24% 8%;
+    --sidebar-foreground: 215 20% 92%;
+    --sidebar-primary: 196 75% 63%;
+    --sidebar-primary-foreground: 220 40% 8%;
+    --sidebar-accent: 220 22% 14%;
+    --sidebar-accent-foreground: 215 20% 92%;
+    --sidebar-border: 217 16% 24%;
+    --sidebar-ring: 196 75% 63%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    @apply bg-background text-foreground antialiased;
+    font-family: "Space Grotesk", "Avenir Next", "Segoe UI Variable", "Segoe UI", sans-serif;
+    font-feature-settings: "ss01" 1, "cv02" 1, "cv03" 1;
+    background-image: radial-gradient(circle at 15% 12%, hsl(var(--workspace-glow) / 0.08), transparent 35%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--panel)));
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.32);
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply border backdrop-blur-2xl;
+    border-color: hsl(var(--workspace-panel-border) / 0.5);
+    border-radius: var(--workspace-radius);
+    background-color: hsl(var(--workspace-panel) / 0.7);
+    box-shadow: var(--workspace-shadow);
+  }
+
+  .panel-card {
+    @apply border border-slate-700/40 bg-slate-900/40 p-4 transition-all duration-200;
+    border-radius: var(--workspace-radius);
+  }
+
+  .panel-card:hover {
+    @apply border-slate-700/60 bg-slate-900/50;
+  }
+
+  .section-header {
+    @apply mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/90;
+  }
+
+  .desktop-panel {
+    transition: box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  .desktop-panel:hover {
+    box-shadow: var(--workspace-shadow);
+  }
+}
