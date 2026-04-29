@@ -2,7 +2,7 @@
 
 ## Product Description
 
-Northstar Focus Workspace is a local-first productivity and ambience desktop-style web app. It provides a focused workspace with local tasks, notes, calendar planning, focus timing, session history, and ambience controls.
+Stillio is a calm, local first productivity and ambience desktop-style web app. It provides a focused workspace with local tasks, notes, calendar planning, focus timing, session history, and ambience controls.
 
 The product promise is simple: offline-ready focus tools with local data ownership and no fake integrations.
 

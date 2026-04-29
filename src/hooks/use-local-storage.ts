@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { LEGACY_KEY_MAP } from "@/lib/storage-keys";
 
 export type PersistenceStatus = "idle" | "saving" | "saved" | "error";
 
@@ -59,10 +60,28 @@ export function useLocalStorage<T>(
 
     try {
       const item = window.localStorage.getItem(key);
-      if (!item) return initialValue;
-      hasStoredValueRef.current = true;
-      const parsed = JSON.parse(item) as T;
-      return deserialize ? deserialize(parsed) : parsed;
+      if (item) {
+        hasStoredValueRef.current = true;
+        const parsed = JSON.parse(item) as T;
+        return deserialize ? deserialize(parsed) : parsed;
+      }
+
+      // No value under the current key — attempt to migrate from legacy keys if available.
+      try {
+        const legacyKeys = LEGACY_KEY_MAP[key] ?? [];
+        for (const legacyKey of legacyKeys) {
+          const legacyItem = window.localStorage.getItem(legacyKey);
+          if (legacyItem) {
+            const parsed = JSON.parse(legacyItem) as T;
+            // Return legacy value so the hook will write it under the new key on first save.
+            return deserialize ? deserialize(parsed) : parsed;
+          }
+        }
+      } catch {
+        // Ignore migration failures and fall back to defaults.
+      }
+
+      return initialValue;
     } catch {
       initialPersistenceRef.current = {
         status: "error",

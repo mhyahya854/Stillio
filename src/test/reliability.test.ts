@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { WORKSPACE_STORAGE_KEY, LEGACY_WORKSPACE_KEY } from "@/lib/storage-keys";
 import { createWorkspaceBackup, validateAndImportWorkspace } from "@/lib/workspace-import-export";
 import { createDefaultWorkspaceState } from "@/lib/workspace-data";
 
@@ -73,6 +74,25 @@ describe("useLocalStorage reliability", () => {
 
     expect(result.current.status).toBe("saved");
     expect(localStorage.getItem("test-key")).toContain("bar");
+  });
+
+  it("migrates legacy workspace key to new Stillio key", () => {
+    const legacy = { tasks: [{ id: "t1", title: "hi" }], notes: [] };
+    localStorage.setItem(LEGACY_WORKSPACE_KEY, JSON.stringify(legacy));
+
+    const { result } = renderHook(() => useLocalStorage(WORKSPACE_STORAGE_KEY, createDefaultWorkspaceState()));
+
+    // The hook should load legacy data as the initial value
+    expect(result.current.value).toEqual(legacy);
+
+    // Advance timers so the debounced save writes the new key
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(localStorage.getItem(WORKSPACE_STORAGE_KEY)).toContain('"tasks"');
+    // Legacy key should remain (migration preserves old data until user clears)
+    expect(localStorage.getItem(LEGACY_WORKSPACE_KEY)).not.toBeNull();
   });
 
   it("loads cross-tab storage updates for the same key", async () => {

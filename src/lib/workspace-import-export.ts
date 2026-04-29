@@ -3,8 +3,9 @@ import { normalizeWorkspaceState } from "./workspace-data";
 import { toast } from "@/hooks/use-toast";
 
 export const CURRENT_SCHEMA_VERSION = 1;
-export const BACKUP_APP_NAME = "Northstar Focus Workspace";
-const LEGACY_BACKUP_APP_NAMES = ["Lifeatio Clone"] as const;
+export const BACKUP_APP_NAME = "Stillio";
+// Accept older backup envelopes from previous product names
+const LEGACY_BACKUP_APP_NAMES = ["Lifeatio Clone", "Northstar Focus Workspace"] as const;
 
 export interface WorkspaceBackup {
   app: typeof BACKUP_APP_NAME;
@@ -91,7 +92,7 @@ export function exportWorkspace(state: WorkspaceState): void {
 
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `northstar-workspace-backup-${formatBackupTimestamp()}.json`;
+    anchor.download = `stillio-workspace-backup-${formatBackupTimestamp()}.json`;
 
     document.body.appendChild(anchor);
     anchor.click();

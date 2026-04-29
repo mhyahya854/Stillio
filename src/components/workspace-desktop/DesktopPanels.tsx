@@ -967,7 +967,7 @@ export function SettingsPanel({
       <div className={panelCardClass}>
         <p className={sectionHeaderClass}>About</p>
         <p className="text-sm leading-relaxed text-slate-300">
-          Northstar is an offline-ready local focus workspace. Tasks, notes, events, sessions, layout, and ambience settings stay on this device unless you export a backup.
+          Stillio is an offline-ready local focus workspace. Tasks, notes, events, sessions, layout, and ambience settings stay on this device unless you export a backup.
         </p>
       </div>
     </div>

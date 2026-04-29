@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<Props, State> {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `northstar-recovery-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.download = `stillio-recovery-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
