@@ -5,7 +5,18 @@ import { toast } from "@/hooks/use-toast";
 export const CURRENT_SCHEMA_VERSION = 1;
 export const BACKUP_APP_NAME = "Stillio";
 // Accept older backup envelopes from previous product names
-const LEGACY_BACKUP_APP_NAMES = ["Lifeatio Clone", "Northstar Focus Workspace"] as const;
+const LEGACY_BACKUP_APP_NAMES = [
+  "Lifeatio Clone",
+  "Lifeatio",
+  "LifeAtio",
+  "LifeAt.io",
+  "LifeAt",
+  "lifeatio",
+  "lifeatio-clone",
+  "life-at-io",
+  "life-at-io-clone",
+  "Northstar Focus Workspace",
+] as const;
 
 export interface WorkspaceBackup {
   app: typeof BACKUP_APP_NAME;

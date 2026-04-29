@@ -14,7 +14,7 @@ This app is not:
 
 - A social app.
 - A calling app.
-- A Snapchat, Discord, or messaging clone.
+- Snapchat, Discord, or messaging apps.
 - A YouTube ambience wrapper.
 - A cloud workspace.
 - An AI productivity tool.
