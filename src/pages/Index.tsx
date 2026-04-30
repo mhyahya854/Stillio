@@ -1,7 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AudioLines, BarChart3, CalendarDays, CheckCircle2, CloudOff, Loader2, NotebookPen, Settings2, SlidersHorizontal, TimerReset } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DriveSync from "@/components/drive/DriveSync";
 import { FloatingPanel } from "@/components/workspace-desktop/FloatingPanel";
 import { DockBar } from "@/components/workspace-desktop/DockBar";
 import { ImmersiveSceneViewport } from "@/components/workspace-desktop/ImmersiveSceneViewport";
@@ -41,7 +40,6 @@ import {
   toggleTrack,
   updateCalendarEvent,
   updateNoteContent,
-  updateTaskDescription,
   updateTaskDueDate,
   updateTaskTitle,
 } from "@/lib/workspace-mutations";
@@ -550,10 +548,6 @@ const Index = () => {
     updateWorkspace((current) => updateTaskDueDate(current, id, date));
   };
 
-  const handleTaskDescriptionUpdate = (id: string, description: string) => {
-    updateWorkspace((current) => updateTaskDescription(current, id, description));
-  };
-
   const handleCalendarEventUpdate = (id: string, patch: Partial<CalendarEvent>) => {
     updateWorkspace((current) => updateCalendarEvent(current, id, patch));
   };
@@ -781,7 +775,6 @@ const Index = () => {
             onTaskDelete={handleTaskDelete}
             onTaskFocusSelect={handleTaskFocusSelect}
             onTaskDueDateUpdate={handleTaskDueDateUpdate}
-            onTaskDescriptionUpdate={handleTaskDescriptionUpdate}
           />
         );
       case "timer":
@@ -918,7 +911,6 @@ const Index = () => {
               </Button>
             </div>
           </div>
-          <DriveSync />
         </div>
       }
       floatingPanels={

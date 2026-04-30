@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMinutes, getFocusTotals, reorderTasks } from "@/lib/workspace-helpers";
+import { formatMinutes, formatSeconds, formatTimer, getFocusTotals, reorderTasks } from "@/lib/workspace-helpers";
 import { FocusSession, Task } from "@/types/workspace";
 
 describe("workspace helpers", () => {
@@ -63,5 +63,11 @@ describe("workspace helpers", () => {
     expect(formatMinutes(45)).toBe("45m");
     expect(formatMinutes(60)).toBe("1h");
     expect(formatMinutes(95)).toBe("1h 35m");
+  });
+
+  it("clamps invalid timer display values", () => {
+    expect(formatTimer(-1)).toBe("00:00");
+    expect(formatTimer(Number.NaN)).toBe("00:00");
+    expect(formatSeconds(Number.NaN)).toBe("0s");
   });
 });

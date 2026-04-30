@@ -41,7 +41,6 @@ describe("DesktopPanels", () => {
         onTaskDelete={vi.fn()}
         onTaskFocusSelect={vi.fn()}
         onTaskDueDateUpdate={vi.fn()}
-        onTaskDescriptionUpdate={vi.fn()}
       />,
     );
 

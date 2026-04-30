@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 
 export const CURRENT_SCHEMA_VERSION = 1;
 export const BACKUP_APP_NAME = "Stillio";
+export const MAX_BACKUP_IMPORT_BYTES = 2 * 1024 * 1024;
 // Accept older backup envelopes from previous product names
 const LEGACY_BACKUP_APP_NAMES = [
   "Lifeatio Clone",
@@ -126,6 +127,10 @@ export function exportWorkspace(state: WorkspaceState): void {
 
 export async function validateAndImportWorkspace(file: File): Promise<ImportResult> {
   try {
+    if (file.size > MAX_BACKUP_IMPORT_BYTES) {
+      return { success: false, error: "Backup file is too large" };
+    }
+
     const text = await file.text();
     let parsed: unknown;
 

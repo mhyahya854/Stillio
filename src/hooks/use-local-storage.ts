@@ -54,6 +54,7 @@ export function useLocalStorage<T>(
   const externalUpdateMessage = options?.externalUpdateMessage;
   const initialPersistenceRef = useRef<PersistenceState>({ status: "idle" });
   const hasStoredValueRef = useRef(false);
+  const initialStoredRawRef = useRef("");
 
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === "undefined") return initialValue;
@@ -62,11 +63,12 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       if (item) {
         hasStoredValueRef.current = true;
+        initialStoredRawRef.current = item;
         const parsed = JSON.parse(item) as T;
         return deserialize ? deserialize(parsed) : parsed;
       }
 
-      // No value under the current key — attempt to migrate from legacy keys if available.
+      // No value under the current key - attempt to migrate from legacy keys if available.
       try {
         const legacyKeys = LEGACY_KEY_MAP[key] ?? [];
         for (const legacyKey of legacyKeys) {
@@ -92,8 +94,7 @@ export function useLocalStorage<T>(
   });
 
   const [persistence, setPersistence] = useState<PersistenceState>(initialPersistenceRef.current);
-  const initialSerialized = safeSerialize(storedValue);
-  const lastSavedValueRef = useRef(initialSerialized.ok && hasStoredValueRef.current ? initialSerialized.value : "");
+  const lastSavedValueRef = useRef(hasStoredValueRef.current ? initialStoredRawRef.current : "");
 
   const clearError = useCallback(() => {
     setPersistence((current) => ({

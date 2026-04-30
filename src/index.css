@@ -53,15 +53,6 @@
     --workspace-shadow: 0 28px 80px -34px rgba(3, 7, 18, 0.95);
 
     --radius: 0.7rem;
-
-    --sidebar-background: 220 24% 8%;
-    --sidebar-foreground: 215 20% 92%;
-    --sidebar-primary: 196 75% 63%;
-    --sidebar-primary-foreground: 220 40% 8%;
-    --sidebar-accent: 220 22% 14%;
-    --sidebar-accent-foreground: 215 20% 92%;
-    --sidebar-border: 217 16% 24%;
-    --sidebar-ring: 196 75% 63%;
   }
 
   .dark {
@@ -103,14 +94,6 @@
     --workspace-warning: 39 55% 54%;
     --workspace-radius: 8px;
     --workspace-shadow: 0 28px 80px -34px rgba(3, 7, 18, 0.95);
-    --sidebar-background: 220 24% 8%;
-    --sidebar-foreground: 215 20% 92%;
-    --sidebar-primary: 196 75% 63%;
-    --sidebar-primary-foreground: 220 40% 8%;
-    --sidebar-accent: 220 22% 14%;
-    --sidebar-accent-foreground: 215 20% 92%;
-    --sidebar-border: 217 16% 24%;
-    --sidebar-ring: 196 75% 63%;
   }
 }
 

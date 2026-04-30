@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { WORKSPACE_STORAGE_KEY, LEGACY_WORKSPACE_KEY, LEGACY_LIFEATIO_WORKSPACE_KEY } from "@/lib/storage-keys";
 import { createWorkspaceBackup, validateAndImportWorkspace } from "@/lib/workspace-import-export";
-import { createDefaultWorkspaceState } from "@/lib/workspace-data";
+import { createDefaultWorkspaceState, normalizeWorkspaceState } from "@/lib/workspace-data";
 
 // Mock toast to avoid actual UI side effects
 vi.mock("@/hooks/use-toast", () => ({
@@ -114,6 +114,31 @@ describe("useLocalStorage reliability", () => {
     expect(localStorage.getItem(LEGACY_LIFEATIO_WORKSPACE_KEY)).not.toBeNull();
   });
 
+  it("persists normalized current-key workspace data after sanitizing stored values", () => {
+    const fallback = createDefaultWorkspaceState();
+    const rawWorkspace = {
+      ...fallback,
+      settings: {
+        ...fallback.settings,
+        audioMasterVolume: null,
+      },
+    };
+    localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(rawWorkspace));
+
+    const { result } = renderHook(() =>
+      useLocalStorage(WORKSPACE_STORAGE_KEY, fallback, { deserialize: normalizeWorkspaceState }),
+    );
+
+    expect(result.current.value.settings.audioMasterVolume).toBe(fallback.settings.audioMasterVolume);
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    const persisted = JSON.parse(localStorage.getItem(WORKSPACE_STORAGE_KEY) ?? "{}");
+    expect(persisted.settings.audioMasterVolume).toBe(fallback.settings.audioMasterVolume);
+  });
+
   it("loads cross-tab storage updates for the same key", async () => {
     const { result } = renderHook(() => useLocalStorage("test-key", { foo: "bar" }));
     const nextRaw = JSON.stringify({ foo: "from-tab" });
@@ -143,6 +168,16 @@ describe("workspace import/export reliability", () => {
     
     expect(result.success).toBe(false);
     expect(result.error).toBe("Invalid JSON file");
+  });
+
+  it("rejects backup files that are too large to import safely", async () => {
+    const file = new File([new Uint8Array(2 * 1024 * 1024 + 1)], "large-backup.json", {
+      type: "application/json",
+    });
+    const result = await validateAndImportWorkspace(file);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Backup file is too large");
   });
 
   it("rejects invalid workspace shape", async () => {

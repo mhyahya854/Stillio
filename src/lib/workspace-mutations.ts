@@ -68,14 +68,6 @@ export function updateTaskDueDate(state: WorkspaceState, id: string, dueDate: st
   };
 }
 
-export function updateTaskDescription(state: WorkspaceState, id: string, description: string): WorkspaceState {
-  const now = new Date().toISOString();
-  return {
-    ...state,
-    tasks: state.tasks.map((task) => (task.id === id ? { ...task, description, updatedAt: now } : task)),
-  };
-}
-
 export function setFocusTask(state: WorkspaceState, id: string | undefined): WorkspaceState {
   const nextFocusTaskId =
     typeof id === "string" && state.tasks.some((task) => task.id === id && !task.completed)

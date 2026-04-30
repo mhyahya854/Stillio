@@ -345,7 +345,7 @@ export function CalendarPanel({
                       <p className="text-xs text-slate-400">
                         {event.date} at {event.time}
                       </p>
-                      <span className="text-[10px] text-slate-500">• {formatMinutes(event.durationMinutes)}</span>
+                      <span className="text-[10px] text-slate-500">- {formatMinutes(event.durationMinutes)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -393,7 +393,6 @@ export function TasksPanel({
   onTaskDelete,
   onTaskFocusSelect,
   onTaskDueDateUpdate,
-  onTaskDescriptionUpdate,
 }: {
   tasks: Task[];
   focusTaskId?: string;
@@ -405,7 +404,6 @@ export function TasksPanel({
   onTaskDelete: (id: string) => void;
   onTaskFocusSelect: (id: string | undefined) => void;
   onTaskDueDateUpdate: (id: string, date: string | undefined) => void;
-  onTaskDescriptionUpdate: (id: string, description: string) => void;
 }) {
   const [draft, setDraft] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -1150,7 +1148,7 @@ export function SessionPanel({
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-slate-100 capitalize">{session.mode}</p>
-                        {task && <span className="truncate text-[10px] text-slate-500">• {task.title}</span>}
+                        {task && <span className="truncate text-[10px] text-slate-500">- {task.title}</span>}
                       </div>
                       <p className="text-[10px] text-slate-400">{new Date(session.startedAt).toLocaleString()}</p>
                     </div>

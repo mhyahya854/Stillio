@@ -93,6 +93,76 @@ describe("workspace normalization", () => {
     const normalized = normalizeWorkspaceState(input);
     expect(normalized.audioPresets[0].trackLevels).toEqual({ rain: 55 });
   });
+
+  it("preserves explicit zero audio master volume", () => {
+    const input = {
+      ...createDefaultWorkspaceState(),
+      settings: {
+        ...createDefaultWorkspaceState().settings,
+        audioMasterVolume: 0,
+      },
+    };
+
+    const normalized = normalizeWorkspaceState(input);
+    expect(normalized.settings.audioMasterVolume).toBe(0);
+  });
+
+  it("falls back for invalid nullable audio master volume", () => {
+    const fallback = createDefaultWorkspaceState();
+    const input = {
+      ...fallback,
+      settings: {
+        ...fallback.settings,
+        audioMasterVolume: null,
+      },
+    };
+
+    const normalized = normalizeWorkspaceState(input as unknown);
+    expect(normalized.settings.audioMasterVolume).toBe(fallback.settings.audioMasterVolume);
+  });
+
+  it("removes remote scene media and unsafe audio paths from imported workspaces", () => {
+    const fallback = createDefaultWorkspaceState();
+    const input = {
+      ...fallback,
+      spaces: [
+        {
+          ...fallback.spaces[0],
+          id: "remote-space",
+          mediaType: "video",
+          image: "https://example.com/remote.jpg",
+          videoSrc: "https://youtube.com/embed/abc",
+          posterImage: "//cdn.example.com/poster.jpg",
+          fallbackImage: "javascript:alert(1)",
+        },
+      ],
+      audioTracks: [
+        {
+          id: "../escape",
+          name: "Remote Audio",
+          icon: "Waves",
+          src: "/audio/../../remote.wav",
+          volume: 20,
+          active: true,
+        },
+      ],
+      activeSpaceId: "remote-space",
+      settings: {
+        ...fallback.settings,
+        startupSpaceId: "remote-space",
+      },
+    };
+
+    const normalized = normalizeWorkspaceState(input as unknown);
+    const normalizedSpace = normalized.spaces[0];
+    expect(normalizedSpace.mediaType).toBe("image");
+    expect(normalizedSpace.image).not.toMatch(/^(https?:|\/\/|javascript:)/i);
+    expect(normalizedSpace.videoSrc).toBeUndefined();
+    expect(normalizedSpace.posterImage).toBeUndefined();
+    expect(normalizedSpace.fallbackImage).toBeUndefined();
+    expect(normalized.audioTracks[0].id).toBe("track-0");
+    expect(normalized.audioTracks[0].src).toBe("/audio/track-0.wav");
+  });
 });
 
 describe("desktop ui normalization", () => {

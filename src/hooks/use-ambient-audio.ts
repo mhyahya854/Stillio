@@ -86,29 +86,6 @@ export function useAmbientAudio(tracks: AudioTrack[], { masterVolume, muted }: A
     );
   }, [getOrCreateAudio, masterVolume, muted, tracks]);
 
-  const playTrack = useCallback(
-    async (id: string) => {
-      const track = tracks.find((item) => item.id === id);
-      if (!track) return;
-      setIsUnlocked(true);
-      await getOrCreateAudio(track).play();
-    },
-    [getOrCreateAudio, tracks],
-  );
-
-  const pauseTrack = useCallback((id: string) => {
-    audioByIdRef.current.get(id)?.pause();
-  }, []);
-
-  const setTrackVolume = useCallback(
-    (id: string, volume: number) => {
-      const audio = audioByIdRef.current.get(id);
-      if (!audio) return;
-      audio.volume = muted ? 0 : Math.max(0, Math.min(1, (volume / 100) * (masterVolume / 100)));
-    },
-    [masterVolume, muted],
-  );
-
   const muteAll = useCallback(() => {
     audioByIdRef.current.forEach((audio) => audio.pause());
   }, []);
@@ -127,9 +104,6 @@ export function useAmbientAudio(tracks: AudioTrack[], { masterVolume, muted }: A
   return {
     isUnlocked,
     unlockAudio,
-    playTrack,
-    pauseTrack,
-    setTrackVolume,
     setMasterVolume,
     muteAll,
     errors,

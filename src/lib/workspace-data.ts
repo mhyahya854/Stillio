@@ -11,6 +11,9 @@ const spaceCategories = ["Library", "Rain", "Night City", "Studio", "Cabin", "Na
 const taskPriorities = ["low", "medium", "high"] as const;
 const taskTags = ["Study", "Reading", "Project", "Admin"] as const;
 const calendarCategories = ["focus", "meeting", "planning", "break"] as const;
+const safeSceneImageRoots = ["/assets/", "/src/assets/", "/scenes/"] as const;
+const safeSceneVideoRoots = ["/videos/"] as const;
+const safeAudioRoots = ["/audio/"] as const;
 
 function createIsoHelpers(baseDate = new Date()) {
   const now = baseDate;
@@ -272,52 +275,77 @@ function ensureArray<T>(value: unknown, fallback: T[]) {
   return Array.isArray(value) ? (value as T[]) : fallback;
 }
 
+function hasSafePathSegments(path: string) {
+  try {
+    const decoded = decodeURI(path).replace(/\\/g, "/");
+    const pathOnly = decoded.split(/[?#]/, 1)[0];
+    return !pathOnly.split("/").some((segment) => segment === "..");
+  } catch {
+    return false;
+  }
+}
+
+function isSafeLocalPath(value: unknown, allowedRoots: readonly string[]): value is string {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return false;
+  if ([...trimmed].some((character) => character.charCodeAt(0) < 32)) return false;
+  if (!hasSafePathSegments(trimmed)) return false;
+  return allowedRoots.some((root) => trimmed.startsWith(root));
+}
+
+function sanitizeIdentifier(value: unknown, prefix: string, index: number) {
+  return typeof value === "string" && /^[a-z0-9][a-z0-9_-]*$/i.test(value) ? value : `${prefix}-${index}`;
+}
+
 function normalizeSpaces(spaces: Space[], fallback: Space[]) {
   if (!spaces.length) return fallback;
-  return spaces.map((space, index) => ({
-    ...fallback[index % fallback.length],
-    ...space,
-    id: typeof space.id === "string" && space.id ? space.id : `space-${index}`,
-    title: typeof space.title === "string" && space.title.trim() ? space.title : `Workspace ${index + 1}`,
-    category: spaceCategories.includes(space.category) ? space.category : fallback[index % fallback.length].category,
-    mediaType:
-      space.id === "night-desk" && space.videoSrc === "/videos/night-desk.mp4"
-        ? "image"
-        : space.mediaType === "video" || space.mediaType === "image"
-          ? space.mediaType
-          : "image",
-    videoSrc:
-      space.id === "night-desk" && space.videoSrc === "/videos/night-desk.mp4"
-        ? undefined
-        : typeof space.videoSrc === "string"
-          ? space.videoSrc
-          : undefined,
-    posterImage:
-      space.id === "night-desk" && space.videoSrc === "/videos/night-desk.mp4"
-        ? undefined
-        : typeof space.posterImage === "string"
-          ? space.posterImage
-          : undefined,
-    fallbackImage: typeof space.fallbackImage === "string" ? space.fallbackImage : undefined,
-    description: typeof space.description === "string" ? space.description : "",
-    ambienceLabel: typeof space.ambienceLabel === "string" ? space.ambienceLabel : "",
-    tags: Array.isArray(space.tags) ? space.tags.filter((tag): tag is string => typeof tag === "string") : [],
-    favorite: Boolean(space.favorite),
-    recent: Boolean(space.recent),
-  }));
+  return spaces.map((space, index) => {
+    const fallbackSpace = fallback[index % fallback.length];
+    const rawVideoSrc = space.id === "night-desk" && space.videoSrc === "/videos/night-desk.mp4"
+      ? undefined
+      : isSafeLocalPath(space.videoSrc, safeSceneVideoRoots)
+        ? space.videoSrc.trim()
+        : undefined;
+    const image = isSafeLocalPath(space.image, safeSceneImageRoots) ? space.image.trim() : fallbackSpace.image;
+    const posterImage = isSafeLocalPath(space.posterImage, safeSceneImageRoots) ? space.posterImage.trim() : undefined;
+    const fallbackImage = isSafeLocalPath(space.fallbackImage, safeSceneImageRoots) ? space.fallbackImage.trim() : undefined;
+
+    return {
+      ...fallbackSpace,
+      ...space,
+      id: typeof space.id === "string" && space.id ? space.id : `space-${index}`,
+      title: typeof space.title === "string" && space.title.trim() ? space.title : `Workspace ${index + 1}`,
+      category: spaceCategories.includes(space.category) ? space.category : fallbackSpace.category,
+      mediaType: space.mediaType === "video" && rawVideoSrc ? "video" : "image",
+      image,
+      videoSrc: rawVideoSrc,
+      posterImage,
+      fallbackImage,
+      description: typeof space.description === "string" ? space.description : "",
+      ambienceLabel: typeof space.ambienceLabel === "string" ? space.ambienceLabel : "",
+      tags: Array.isArray(space.tags) ? space.tags.filter((tag): tag is string => typeof tag === "string") : [],
+      favorite: Boolean(space.favorite),
+      recent: Boolean(space.recent),
+    };
+  });
 }
 
 function normalizeAudioTracks(tracks: AudioTrack[]) {
-  return tracks.map((track, index) => ({
-    ...track,
-    id: typeof track.id === "string" && track.id ? track.id : `track-${index}`,
-    name: typeof track.name === "string" && track.name.trim() ? track.name : `Layer ${index + 1}`,
-    icon: typeof track.icon === "string" ? track.icon : "Waves",
-    src: typeof track.src === "string" && track.src.startsWith("/audio/") ? track.src : `/audio/${track.id || `track-${index}`}.wav`,
-    volume: Math.max(0, Math.min(100, Number(track.volume) || 0)),
-    active: Boolean(track.active),
-    error: typeof track.error === "string" ? track.error : undefined,
-  }));
+  return tracks.map((track, index) => {
+    const id = sanitizeIdentifier(track.id, "track", index);
+
+    return {
+      ...track,
+      id,
+      name: typeof track.name === "string" && track.name.trim() ? track.name : `Layer ${index + 1}`,
+      icon: typeof track.icon === "string" ? track.icon : "Waves",
+      src: isSafeLocalPath(track.src, safeAudioRoots) ? track.src.trim() : `/audio/${id}.wav`,
+      volume: Math.max(0, Math.min(100, Number(track.volume) || 0)),
+      active: Boolean(track.active),
+      error: typeof track.error === "string" ? track.error : undefined,
+    };
+  });
 }
 
 function normalizeAudioPresets(presets: AudioPreset[], validTrackIds: Set<string>) {
@@ -438,6 +466,14 @@ function normalizeFocusSessions(sessions: WorkspaceState["focusSessions"]) {
 function normalizeDefaultUtilityPanel(value: unknown, fallback: UtilityPanelId) {
   return utilityPanelIds.includes(value as UtilityPanelId) ? (value as UtilityPanelId) : fallback;
 }
+
+function normalizePercentage(value: unknown, fallback: number) {
+  if (typeof value !== "number" && typeof value !== "string") return fallback;
+  if (typeof value === "string" && value.trim() === "") return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, parsed)) : fallback;
+}
+
 export function normalizeWorkspaceState(value: unknown): WorkspaceState {
   const fallback = createDefaultWorkspaceState();
   if (!value || typeof value !== "object") return fallback;
@@ -493,7 +529,7 @@ export function normalizeWorkspaceState(value: unknown): WorkspaceState {
       longBreakMinutes: Math.max(1, Number(raw.settings?.longBreakMinutes) || fallback.settings.longBreakMinutes),
       countdownMinutes: Math.max(1, Number(raw.settings?.countdownMinutes) || fallback.settings.countdownMinutes),
       defaultUtilityPanel: normalizeDefaultUtilityPanel(raw.settings?.defaultUtilityPanel, fallback.settings.defaultUtilityPanel),
-      audioMasterVolume: Math.max(0, Math.min(100, Number(raw.settings?.audioMasterVolume) || fallback.settings.audioMasterVolume)),
+      audioMasterVolume: normalizePercentage(raw.settings?.audioMasterVolume, fallback.settings.audioMasterVolume),
       audioMuted: Boolean(raw.settings?.audioMuted ?? fallback.settings.audioMuted),
     },
   } as WorkspaceState;
